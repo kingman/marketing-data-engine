@@ -24,7 +24,6 @@ CYAN='\033[0;36m'
 BCYAN='\033[1;36m'
 NC='\033[0m' # No Color
 DIVIDER=$(printf %"$(tput cols)"s | tr " " "*")
-DIVIDER+="\n"
 
 # DECLARE VARIABLES
 declare -a apis_array=("cloudresourcemanager.googleapis.com"
