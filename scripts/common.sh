@@ -30,6 +30,7 @@ DIVIDER+="\n"
 declare -a apis_array=("cloudresourcemanager.googleapis.com"
                 "serviceusage.googleapis.com"
                 "iam.googleapis.com"
+                "iamcredentials.googleapis.com"
                 "logging.googleapis.com"
                 "monitoring.googleapis.com"
                 "bigquery.googleapis.com"
@@ -123,6 +124,45 @@ set_environment_variable_if_not_set() {
   unset _VARIABLE_NAME
   unset _VALUE_TO_SET
   unset _VARIABLE_VALUE
+}
+
+create_service_account_and_enable_impersonation() {
+  if [ -z "${SERVICE_ACCOUNT_ID:-}" ]; then
+    export SERVICE_ACCOUNT_ID="deployer@$PROJECT_ID.iam.gserviceaccount.com"
+    echo "using default name 'deployer' for SERVICE_ACCOUNT_ID"
+  fi
+  set +e # Disable errexit
+  __deployer_sa=$(gcloud iam service-accounts list --format="value(email)" | grep "$SERVICE_ACCOUNT_ID")
+  set -e # Re-enable errexit
+  if [[ $__deployer_sa ]]; then
+    echo "$__deployer_sa has already been created"
+  else
+    gcloud iam service-accounts create deployer \
+      --description="The service account used to deploy Marketing Analytics Jumpstart resources" \
+      --display-name="MAJ deployer service account" \
+      --project="$PROJECT_ID"
+  fi
+  enable_role "roles/iam.serviceAccountTokenCreator" "user:$CURRENT_USER" "$SERVICE_ACCOUNT_ID"
+  unset __deployer_sa
+}
+
+# shell script function to enable IAM roles
+enable_role() {
+  local __role=$1 __principal=$2 __resource=$3
+  echo "granting IAM Role $__role to $__principal at resource $__resource "
+  gcloud projects add-iam-policy-binding "$PROJECT_ID" --role="$__role" --member="$__principal" 1>/dev/null
+  unset __role
+  unset __principal
+}
+
+# enable all roles in the roles array for service account used to deploy terraform resources
+enable_deployer_roles() {
+  local __principal="serviceAccount:$1"
+  readarray -t roles_array <scripts/deployer_roles.txt
+  for i in "${roles_array[@]}"; do
+    enable_role "${i/\$\{PROJECT_ID\}/"$PROJECT_ID"}" "$__principal" "projects/$PROJECT_ID"
+  done
+  unset __principal
 }
 
 set_environment_variable_from_input_or_default_if_not_set() {

@@ -561,7 +561,7 @@ def upload_pipeline_artefact_registry(
     logging.info(f"Uploading pipeline to {region}-kfp.pkg.dev/{project_id}/{repo_name}")
 
     host = f"https://{region}-kfp.pkg.dev/{project_id}/{repo_name}"
-    client = RegistryClient(host=host)
+    client = RegistryClient(host=host, auth=get_default_auth())
     response = client.upload_pipeline(
         file_name=template_path,
         tags=tags,
@@ -600,6 +600,18 @@ def delete_pipeline_artefact_registry(
     return response
 
 
+def get_default_auth() -> credentials:
+    """
+    Retrive Application-Default-Credential(ADC)
+    Add https://www.googleapis.com/auth/cloud-platform to the scope is needed,
+    to ensure that token is able to refresh
+    Returns:
+        google.auth.credentials.Credentials: default credential with additional scope
+    """
+    # Get the default credentials for the current environment.
+    creds, project = google.auth.default()
+    return credentials.with_scopes_if_required(creds, "https://www.googleapis.com/auth/cloud-platform")
+
 def get_gcp_bearer_token() -> str:
     """
     Retrieves a bearer token for Google Cloud Platform (GCP) authentication.
@@ -613,10 +625,9 @@ def get_gcp_bearer_token() -> str:
         Exception: If an error occurs while retrieving the bearer token.
     """
 
-    # Get the default credentials for the current environment.
-    creds, project = google.auth.default()
 
     # Refresh the credentials to ensure they are valid.
+    creds = get_default_auth()
     creds.refresh(google.auth.transport.requests.Request())
 
     # Extract the bearer token from the refreshed credentials.

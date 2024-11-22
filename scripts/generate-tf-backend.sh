@@ -36,8 +36,30 @@ section_close
 
 section_open  "Setting the Google Cloud project to TF_STATE_PROJECT"
     set_environment_variable_if_not_set "TF_STATE_PROJECT" "${PROJECT_ID}"
+    CURRENT_USER=$(gcloud auth list --filter=status:ACTIVE --format="value(account)")
+    gcloud config unset billing/quota_project
     gcloud config set project "${TF_STATE_PROJECT}"
 section_close
+
+section_open "Enable all the required APIs"
+    enable_all_apis
+section_close
+
+if [ -z "${MAJ_USE_DEPLOYER_SA:-}" ]; then
+    echo "Use ${CURRENT_USER} for deployment"
+else
+    if [[ "${MAJ_USE_DEPLOYER_SA}" == "true" ]]; then
+    section_open "Create deployer service account and enable $CURRENT_USER to use service account impersonation "
+        create_service_account_and_enable_impersonation
+    section_close
+    section_open "Enable all the required IAM roles for deployer service account, serviceAccount:""${SERVICE_ACCOUNT_ID}"""
+        enable_deployer_roles "${SERVICE_ACCOUNT_ID}"
+    section_close
+    section_open "Set Application Default Credentials to be used by Terraform"
+        gcloud auth application-default login --impersonate-service-account="${SERVICE_ACCOUNT_ID}"
+    section_close
+    fi
+fi
 
 section_open  "Check and set the LOCATION variable"
     set_environment_variable_if_not_set "LOCATION" "us-central1"
@@ -45,10 +67,6 @@ section_close
 
 section_open  "Check and set the TF_STATE_BUCKET variable"
     set_environment_variable_if_not_set "TF_STATE_BUCKET" "${TF_STATE_PROJECT}-terraform-state"
-section_close
-
-section_open "Enable all the required APIs"
-    enable_all_apis
 section_close
 
 section_open "Creating a new Google Cloud Storage bucket to store the Terraform state in ${TF_STATE_PROJECT} project, bucket: ${TF_STATE_BUCKET}"
