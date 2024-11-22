@@ -57,7 +57,7 @@ else
         enable_deployer_roles "${SERVICE_ACCOUNT_ID}"
     section_close
     section_open "Set Application Default Credentials to be used by Terraform"
-        gcloud auth application-default login --impersonate-service-account="${SERVICE_ACCOUNT_ID}"
+        set_adc
     section_close
     fi
 fi

@@ -290,3 +290,13 @@ enable_all_apis() {
     enable_apis "$i"
   done
 }
+
+set_adc() {
+  # check if the script is manually triggered by a user, or automated in CI build by a service account. Different methods of ADC for each
+  if echo "$ACTIVE_PRINCIPAL" | grep "iam.gserviceaccount.com"; then
+    echo "WARNING: Setting application default credentials with an impersonated service account requires an interactive sign-in flow with your username and password, but this script has been run with a service account identity. Ensure that you set ADC with the correct service account before running terraform commands. https://cloud.google.com/docs/authentication/provide-credentials-adc"
+
+  else
+    gcloud auth application-default login --impersonate-service-account="${SERVICE_ACCOUNT_ID}"
+  fi
+}
