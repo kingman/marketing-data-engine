@@ -48,6 +48,7 @@ section_close
 
 if [ -z "${MAJ_USE_DEPLOYER_SA:-}" ]; then
     echo "Use ${CURRENT_USER} for deployment"
+    GCS_IMPERSONATION_PARAM=""
 else
     if [[ "${MAJ_USE_DEPLOYER_SA}" == "true" ]]; then
     section_open "Create deployer service account and enable $CURRENT_USER to use service account impersonation "
@@ -60,6 +61,7 @@ else
         set_adc
     section_close
     fi
+    CS_IMPERSONATION_PARAM="-i ${SERVICE_ACCOUNT_ID}"
 fi
 
 section_open  "Check and set the LOCATION variable"
@@ -71,11 +73,11 @@ section_open  "Check and set the TF_STATE_BUCKET variable"
 section_close
 
 section_open "Creating a new Google Cloud Storage bucket to store the Terraform state in ${TF_STATE_PROJECT} project, bucket: ${TF_STATE_BUCKET}"
-    if gsutil ls -b gs://"${TF_STATE_BUCKET}" >/dev/null 2>&1; then
+    if gsutil ${CS_IMPERSONATION_PARAM} ls -b gs://"${TF_STATE_BUCKET}" >/dev/null 2>&1; then
         printf "The ${TF_STATE_BUCKET} Google Cloud Storage bucket already exists. \n"
     else
-        gsutil mb -p "${TF_STATE_PROJECT}" --pap enforced -l "${LOCATION}" -b on gs://"${TF_STATE_BUCKET}"
-        gsutil versioning set on gs://"${TF_STATE_BUCKET}"
+        gsutil ${CS_IMPERSONATION_PARAM} mb -p "${TF_STATE_PROJECT}" --pap enforced -l "${LOCATION}" -b on gs://"${TF_STATE_BUCKET}"
+        gsutil ${CS_IMPERSONATION_PARAM} versioning set on gs://"${TF_STATE_BUCKET}"
     fi
 section_close
 
