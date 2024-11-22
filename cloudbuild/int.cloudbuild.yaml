@@ -34,7 +34,7 @@ options:
 substitutions:
   _TEST_PROJECT_ID: "maj-int-${SHORT_SHA}"
   _DEPLOYER_SA: "deployer@${_TEST_PROJECT_ID}.iam.gserviceaccount.com"
-  _BUILDER_IMAGE_NAME: "us-central1-docker.pkg.dev/${PROJECT_ID}/ci/test-builder"
+  _BUILDER_IMAGE_NAME: "us-central1-docker.pkg.dev/${PROJECT_ID}/ci/builder"
   _BUILDER_IMAGE_TAG: "latest"
 # The following subsitutions must be passed by the Cloud Build trigger:
 # _BILLING_ACCOUNT
