@@ -25,31 +25,6 @@ BCYAN='\033[1;36m'
 NC='\033[0m' # No Color
 DIVIDER=$(printf %"$(tput cols)"s | tr " " "*")
 
-# DECLARE VARIABLES
-declare -a apis_array=("cloudresourcemanager.googleapis.com"
-                "serviceusage.googleapis.com"
-                "iam.googleapis.com"
-                "iamcredentials.googleapis.com"
-                "logging.googleapis.com"
-                "monitoring.googleapis.com"
-                "bigquery.googleapis.com"
-                "bigquerystorage.googleapis.com"
-                "dataform.googleapis.com"
-                "secretmanager.googleapis.com"
-                "cloudasset.googleapis.com"
-                "cloudfunctions.googleapis.com"
-                "storage.googleapis.com"
-                "datapipelines.googleapis.com"
-                "analyticsadmin.googleapis.com"
-                "workflows.googleapis.com"
-                "cloudscheduler.googleapis.com"
-                "bigquerymigration.googleapis.com"
-                "bigquerydatatransfer.googleapis.com"
-                "dataform.googleapis.com"
-                "cloudkms.googleapis.com"
-                "servicenetworking.googleapis.com"
-                )
-
 get_project_id() {
     local __resultvar=$1
     VALUE=$(gcloud config get-value project | xargs)
@@ -298,10 +273,9 @@ enable_apis(){
 }
 
 # enable all apis in the array
-enable_all_apis () {
-    ## now loop through the above array
-    for i in "${apis_array[@]}"
-    do
-        enable_apis "$i"
-    done
+enable_all_apis() {
+  readarray -t apis_array <scripts/project_apis.txt
+  for i in "${apis_array[@]}"; do
+    enable_api "$i"
+  done
 }
