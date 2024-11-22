@@ -1,4 +1,4 @@
-#!/usr/bin/env sh
+#!/usr/bin/env bash
 
 # Copyright 2023 Google LLC
 #
@@ -276,6 +276,6 @@ enable_apis(){
 enable_all_apis() {
   readarray -t apis_array <scripts/project_apis.txt
   for i in "${apis_array[@]}"; do
-    enable_api "$i"
+    enable_apis "$i"
   done
 }
