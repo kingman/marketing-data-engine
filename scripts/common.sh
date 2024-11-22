@@ -75,6 +75,16 @@ check_exec_version() {
   unset EXECUTABLE_NAME
 }
 
+set_active_principal() {
+  local __active_principal
+  __active_principal=$(gcloud auth list --filter=status:ACTIVE --format="value(account)")
+  if echo "$__active_principal" | grep "iam.gserviceaccount.com"; then
+    ACTIVE_PRINCIPAL="serviceAccount:${__active_principal}"
+  else
+    ACTIVE_PRINCIPAL="user:${__active_principal}"
+  fi
+}
+
 check_environment_variable() {
   _VARIABLE_NAME=$1
   _ERROR_MESSAGE=$2
@@ -115,8 +125,9 @@ create_service_account_and_enable_impersonation() {
       --description="The service account used to deploy Marketing Analytics Jumpstart resources" \
       --display-name="MAJ deployer service account" \
       --project="$PROJECT_ID"
+    sleep 10 # ocassional flaky errors that "sa does not exist" when trying to apply IAM roles immediately after creation
   fi
-  enable_role "roles/iam.serviceAccountTokenCreator" "user:$CURRENT_USER" "$SERVICE_ACCOUNT_ID"
+  enable_role "roles/iam.serviceAccountTokenCreator" "$ACTIVE_PRINCIPAL" "$SERVICE_ACCOUNT_ID"
   unset __deployer_sa
 }
 

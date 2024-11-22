@@ -37,6 +37,7 @@ section_close
 section_open  "Setting the Google Cloud project to TF_STATE_PROJECT"
     set_environment_variable_if_not_set "TF_STATE_PROJECT" "${PROJECT_ID}"
     CURRENT_USER=$(gcloud auth list --filter=status:ACTIVE --format="value(account)")
+    set_active_principal
     gcloud config unset billing/quota_project
     gcloud config set project "${TF_STATE_PROJECT}"
 section_close
