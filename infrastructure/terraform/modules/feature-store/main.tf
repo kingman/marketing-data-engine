@@ -139,5 +139,49 @@ resource "google_project_iam_member" "vertex_ai_connection_sa_roles" {
     "roles/bigquery.connectionAdmin"
   ])
   role = each.key
+
+  # The lifecycle block is used to configure the lifecycle of the table. In this case, the ignore_changes attribute is set to all, which means that Terraform will ignore 
+  # any changes to the table and will not attempt to update the table. The prevent_destroy attribute is set to true, which means that Terraform will prevent the table from being destroyed.
+  lifecycle {
+    ignore_changes  = all
+    prevent_destroy = true
+  }
 }
+
+# Propagation time for change of access policy typically takes 2 minutes
+# according to https://cloud.google.com/iam/docs/access-change-propagation
+# this wait make sure the policy changes are propagated before proceeding
+# with the build
+resource "time_sleep" "wait_for_vertex_ai_connection_sa_role_propagation" {
+  create_duration = "120s"
+  depends_on = [
+    google_project_iam_member.vertex_ai_connection_sa_roles
+  ]
+}
+
+
+#module "vertex_ai_connection_sa_roles" {
+#  source  = "terraform-google-modules/iam/google//modules/member_iam"
+#  version = "~> 8.0"
+#
+#  service_account_address = google_bigquery_connection.vertex_ai_connection.cloud_resource[0].service_account_id
+#  project_id              = null_resource.check_aiplatform_api.id != "" ? module.project_services.project_id : local.feature_store_project_id
+#  project_roles           = [
+#    "roles/bigquery.jobUser",
+#    "roles/bigquery.dataEditor",
+#    "roles/storage.admin",
+#    "roles/storage.objectViewer",
+#    "roles/aiplatform.user",
+#    "roles/bigquery.connectionUser",
+#    "roles/bigquery.connectionAdmin"
+#    ]
+#  prefix                  = "serviceAccount"
+#  
+#  depends_on = [
+#    module.project_services,
+#    null_resource.check_aiplatform_api,
+#    google_bigquery_connection.vertex_ai_connection
+#  ]
+#  
+#}
 
