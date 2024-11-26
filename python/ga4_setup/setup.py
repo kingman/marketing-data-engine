@@ -465,6 +465,25 @@ def rename_existing_ga4_custom_dimensions(configuration: map, old_prefix, new_pr
 
 
 
+def set_terraform_dot_env_file(configuration: map, measurement_config: map, tf_env_file: str):
+  """
+  Create an .env file with GA4 specific terraform variables
+
+  Args:
+    configuration: A dictionary containing the Google Analytics 4 property ID.
+    measurement_config: A dictionary containing GA4 Measurement Protocol ID and Secret.
+    tf_env_file: Path the .env file
+  """
+  tf_env_ga4 = {
+    'TF_VAR_ga4_property_id': configuration['property_id'],
+    'TF_VAR_ga4_stream_id': configuration['stream_id'],
+    'TF_VAR_ga4_measurement_id': measurement_config['measurement_id'],
+    'TF_VAR_ga4_measurement_secret': measurement_config['measurement_secret']
+  }
+  with open(tf_env_file, "w") as f:
+    for _key, _value in tf_env_ga4.items():
+      f.write(f"export {_key}={_value}\n")
+
 def entry():
   """
   This function is the entry point for the setup script. It takes three arguments:
@@ -490,16 +509,28 @@ def entry():
   '''
 
   import argparse
+  import os
+  import sys
 
   parser = argparse.ArgumentParser()
   parser.add_argument('--ga4_resource', type=str, required=True)
-  parser.add_argument('--ga4_property_id', type=str, required=True)
-  parser.add_argument('--ga4_stream_id', type=str, required=True)
+  parser.add_argument('--tf_env_file', type=str, default='infrastructure/terraform/.env_tf_ga4')
   args = parser.parse_args()
 
+  GA4_PROPERTY_ID = os.getenv("GA4_PROPERTY_ID")
+  GA4_STREAM_ID = os.getenv("GA4_STREAM_ID")
+  if not GA4_PROPERTY_ID or not GA4_STREAM_ID:
+    message = (
+      f"Environment variables missing; "
+      f"{GA4_PROPERTY_ID=}, "
+      f"{GA4_STREAM_ID=}, "
+    )
+    print(message)
+    sys.exit(1)
+
   configuration = {
-    'property_id': args.ga4_property_id,
-    'stream_id': args.ga4_stream_id
+    'property_id': GA4_PROPERTY_ID,
+    'stream_id': GA4_STREAM_ID
   }
 
   # python setup.py --ga4_resource=measurement_properties
@@ -509,7 +540,9 @@ def entry():
       'measurement_id': get_measurement_id(configuration),
       'measurement_secret': get_measurement_protocol_secret(configuration, secret_display_name)
     }
-    print(json.dumps(properties))
+    set_terraform_dot_env_file(configuration, properties, args.tf_env_file)
+
+    # print(json.dumps(properties))
 
   if args.ga4_resource == "check_property_type":
     property = get_property(configuration)

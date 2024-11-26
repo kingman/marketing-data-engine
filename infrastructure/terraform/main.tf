@@ -127,11 +127,6 @@ resource "local_file" "feature_store_configuration" {
   })
 }
 
-data "external" "check_ga4_property_type" {
-  program     = ["bash", "-c", "${local.uv_run_alias} ga4-setup --ga4_resource=check_property_type --ga4_property_id=${var.ga4_property_id} --ga4_stream_id=${var.ga4_stream_id}"]
-  working_dir = local.source_root_dir
-}
-
 # Runs the uv invoke command to generate the sql queries and procedures.
 # This command is executed before the feature store is created.
 resource "null_resource" "generate_sql_queries" {
@@ -175,13 +170,6 @@ resource "null_resource" "generate_sql_queries" {
   #  command     = self.triggers.destroy_command
   #  working_dir = self.triggers.working_dir
   #}
-
-  lifecycle {
-    precondition {
-      condition     = data.external.check_ga4_property_type.result["supported"] == "True"
-      error_message = "The configured GA4 property is not supported"
-    }
-  }
 }
 
 

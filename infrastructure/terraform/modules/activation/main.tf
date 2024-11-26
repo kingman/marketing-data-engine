@@ -361,41 +361,6 @@ module "bigquery" {
   delete_contents_on_destroy = false
 }
 
-# This resouce calls a python command defined inside the module ga4_setup that is responsible for creating
-# all required custom events in the Google Analytics 4 property.
-# Check the python file ga4-setup/setup.py for more information.
-resource "null_resource" "create_custom_events" {
-  triggers = {
-    services_enabled_project = null_resource.check_analyticsadmin_api.id != "" ? module.project_services.project_id : var.project_id
-    source_contents_hash     = local.activation_type_configuration_file_content_hash
-    source_file_content_hash = local.ga4_setup_source_file_content_hash
-  }
-  provisioner "local-exec" {
-    command     = <<-EOT
-    ${var.uv_run_alias} ga4-setup --ga4_resource=custom_events --ga4_property_id=${var.ga4_property_id} --ga4_stream_id=${var.ga4_stream_id}
-    EOT
-    working_dir = local.source_root_dir
-  }
-}
-
-# This resource calls a python command defines inside the module ga4_setup that is responsible for creating
-# all required custom events in the Google Analytics 4 property.
-# Check the python file ga4_setup/setup.py for more information.
-resource "null_resource" "create_custom_dimensions" {
-  triggers = {
-    services_enabled_project = null_resource.check_analyticsadmin_api.id != "" ? module.project_services.project_id : var.project_id
-    source_file_content_hash = local.ga4_setup_source_file_content_hash
-    #source_activation_type_configuration_hash = local.activation_type_configuration_file_content_hash 
-    #source_activation_application_python_hash = local.activation_application_content_hash
-  }
-  provisioner "local-exec" {
-    command     = <<-EOT
-    ${var.uv_run_alias} ga4-setup --ga4_resource=custom_dimensions --ga4_property_id=${var.ga4_property_id} --ga4_stream_id=${var.ga4_stream_id}
-    EOT
-    working_dir = local.source_root_dir
-  }
-}
-
 # This resource creates an Artifact Registry repository for the docker images used by the Activation Application.
 resource "google_artifact_registry_repository" "activation_repository" {
   project       = null_resource.check_artifactregistry_api.id != "" ? module.project_services.project_id : var.project_id
@@ -440,22 +405,6 @@ module "trigger_function_account" {
   ]
   display_name = "Cloud Build Job Service Account"
   description  = "Service Account used to submit job the cloud build job"
-}
-
-# This an external data that retrieves information about the Google Analytics 4 property using 
-# a python command defined in the module ga4_setup.
-# This informatoin can then be used in other parts of the Terraform configuration to access the retrieved information.
-data "external" "ga4_measurement_properties" {
-  program     = ["bash", "-c", "${var.uv_run_alias} ga4-setup --ga4_resource=measurement_properties --ga4_property_id=${var.ga4_property_id} --ga4_stream_id=${var.ga4_stream_id}"]
-  working_dir = local.source_root_dir
-  # The count attribute specifies how many times the external data source should be executed.
-  # This means that the external data source will be executed only if either the 
-  # var.ga4_measurement_id or var.ga4_measurement_secret variable is not set.
-  count = (var.ga4_measurement_id == null || var.ga4_measurement_secret == null || var.ga4_measurement_id == "" || var.ga4_measurement_secret == "") ? 1 : 0
-
-  depends_on = [
-    module.project_services
-  ]
 }
 
 # It's used to create unique names for resources like KMS key rings or crypto keys, 
@@ -532,12 +481,12 @@ module "secret_manager" {
   secrets = [
     {
       name                  = "ga4-measurement-id"
-      secret_data           = (var.ga4_measurement_id == null || var.ga4_measurement_secret == null) ? data.external.ga4_measurement_properties[0].result["measurement_id"] : var.ga4_measurement_id
+      secret_data           = var.ga4_measurement_id
       automatic_replication = false
     },
     {
       name                  = "ga4-measurement-secret"
-      secret_data           = (var.ga4_measurement_id == null || var.ga4_measurement_secret == null) ? data.external.ga4_measurement_properties[0].result["measurement_secret"] : var.ga4_measurement_secret
+      secret_data           = var.ga4_measurement_secret
       automatic_replication = false
     },
   ]
@@ -563,7 +512,6 @@ module "secret_manager" {
   }
 
   depends_on = [
-    data.external.ga4_measurement_properties,
     google_kms_crypto_key.crypto_key_regional,
     google_kms_key_ring.key_ring_regional,
     google_project_service_identity.secretmanager_sa,

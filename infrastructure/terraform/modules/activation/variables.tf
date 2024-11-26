@@ -52,14 +52,12 @@ variable "ga4_measurement_id" {
   description = "Measurement ID in GA4"
   type        = string
   sensitive   = true
-  default     = ""
 }
 
 variable "ga4_measurement_secret" {
   description = "Client secret for authenticating to GA4 API"
   type        = string
   sensitive   = true
-  default     = ""
 }
 
 variable "ga4_property_id" {
