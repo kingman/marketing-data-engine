@@ -1,6 +1,6 @@
 roles/iam.serviceAccountUser
 roles/storage.admin
-roles/serviceusage.serviceUsageConsumer
+roles/serviceusage.serviceUsageAdmin
 roles/artifactregistry.admin
 roles/iam.serviceAccountAdmin
 roles/bigquery.dataOwner
@@ -18,3 +18,4 @@ roles/cloudscheduler.viewer
 roles/cloudfunctions.developer
 roles/iam.serviceAccountTokenCreator
 roles/aiplatform.admin
+roles/cloudasset.viewer
