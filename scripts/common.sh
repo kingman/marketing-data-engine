@@ -128,7 +128,6 @@ create_service_account_and_enable_impersonation() {
     sleep 10 # ocassional flaky errors that "sa does not exist" when trying to apply IAM roles immediately after creation
   fi
   enable_role "roles/iam.serviceAccountTokenCreator" "$ACTIVE_PRINCIPAL" "$SERVICE_ACCOUNT_ID"
-  sleep 120
   unset __deployer_sa
 }
 
@@ -148,6 +147,7 @@ enable_deployer_roles() {
   for i in "${roles_array[@]}"; do
     enable_role "${i/\$\{PROJECT_ID\}/"$PROJECT_ID"}" "$__principal" "projects/$PROJECT_ID"
   done
+  sleep 120 # Wait the permissions to propagate
   unset __principal
 }
 
