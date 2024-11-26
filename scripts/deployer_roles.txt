@@ -19,3 +19,5 @@ roles/cloudfunctions.developer
 roles/iam.serviceAccountTokenCreator
 roles/aiplatform.admin
 roles/cloudasset.viewer
+roles/cloudkms.admin
+roles/cloudbuild.builds.editor
