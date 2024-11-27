@@ -610,6 +610,7 @@ def get_default_auth() -> credentials:
     """
     # Get the default credentials for the current environment.
     creds, project = google.auth.default()
+    print(f'##########--------------- This is the {project=} ---------------##########')
     return credentials.with_scopes_if_required(creds, "https://www.googleapis.com/auth/cloud-platform")
 
 def get_gcp_bearer_token() -> str:

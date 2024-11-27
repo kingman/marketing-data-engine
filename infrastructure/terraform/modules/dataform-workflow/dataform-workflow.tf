@@ -71,4 +71,7 @@ main:
   - complete:
       return: $${workflowInvocation.body.name}
 EOF
+  depends_on = [
+    time_sleep.wait_for_workflow_dataform_service_account_role_propagation
+  ]
 }
