@@ -315,11 +315,11 @@ module "build_push_pipelines_components_image" {
       --project=${module.project_services.project_id} \
       --region ${local.artifact_registry_vars.pipelines_docker_repo.region} \
       --default-buckets-behavior=regional-user-owned-bucket \
-      --tag ${local.artifact_registry_vars.pipelines_docker_repo.region}-docker.pkg.dev/${local.artifact_registry_vars.pipelines_docker_repo.project_id}/${local.artifact_registry_vars.pipelines_docker_repo.name}/${local.artifact_registry_vars.pipelines_docker_repo.base_image_name}:${local.artifact_registry_vars.pipelines_docker_repo.base_image_tag} \
+      --tag ${local.artifact_registry_vars.pipelines_docker_repo.region}-docker.pkg.dev/${local.artifact_registry_vars.pipelines_docker_repo.project_id}/${local.artifact_registry_vars.pipelines_docker_repo.name}/${local.pipeline_image_vars.base_image_name}:${local.pipeline_image_vars.base_image_tag} \
       --service-account "projects/${module.project_services.project_id}/serviceAccounts/${var.cloud_build_service_account_email}" \
       ${local.source_root_dir}/python/base_component_image
   EOT
-  destroy_cmd_body = "artifacts docker images delete --project=${module.project_services.project_id} ${local.artifact_registry_vars.pipelines_docker_repo.region}-docker.pkg.dev/${local.artifact_registry_vars.pipelines_docker_repo.project_id}/${local.artifact_registry_vars.pipelines_docker_repo.name}/${local.artifact_registry_vars.pipelines_docker_repo.base_image_name} --delete-tags"
+  destroy_cmd_body = "artifacts docker images delete --project=${module.project_services.project_id} ${local.artifact_registry_vars.pipelines_docker_repo.region}-docker.pkg.dev/${local.artifact_registry_vars.pipelines_docker_repo.project_id}/${local.artifact_registry_vars.pipelines_docker_repo.name}/${local.pipeline_image_vars.base_image_name} --delete-tags"
 
   create_cmd_triggers = {
     docker_repo_id          = google_artifact_registry_repository.pipelines_docker_repo.id
