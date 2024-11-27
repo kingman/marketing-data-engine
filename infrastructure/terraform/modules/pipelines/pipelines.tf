@@ -302,20 +302,29 @@ locals {
   pipelines_content_hash = sha512(join("", [for f in local.pipelines_fileset : fileexists(f) ? filesha512(f) : sha512("file-not-found")]))
 }
 
+
 # This resource is used to build and push the base component image that will be used to run each Vertex AI Pipeline step.
-resource "null_resource" "build_push_pipelines_components_image" {
-  triggers = {
-    working_dir             = "${local.source_root_dir}/python"
+module "build_push_pipelines_components_image" {
+  source  = "terraform-google-modules/gcloud/google"
+  version = "3.5.0"
+
+  platform = "linux"
+
+  create_cmd_body  = <<-EOT
+    builds submit \
+      --project=${module.project_services.project_id} \
+      --region ${local.artifact_registry_vars.pipelines_docker_repo.region} \
+      --default-buckets-behavior=regional-user-owned-bucket \
+      --tag ${local.artifact_registry_vars.pipelines_docker_repo.region}-docker.pkg.dev/${local.artifact_registry_vars.pipelines_docker_repo.project_id}/${local.artifact_registry_vars.pipelines_docker_repo.name}/${local.artifact_registry_vars.pipelines_docker_repo.base_image_name}:${local.artifact_registry_vars.pipelines_docker_repo.base_image_tag} \
+      --service-account "projects/${module.project_services.project_id}/serviceAccounts/${var.cloud_build_service_account_email}" \
+      ${local.source_root_dir}/python/base_component_image
+  EOT
+  destroy_cmd_body = "artifacts docker images delete --project=${module.project_services.project_id} ${local.artifact_registry_vars.pipelines_docker_repo.region}-docker.pkg.dev/${local.artifact_registry_vars.pipelines_docker_repo.project_id}/${local.artifact_registry_vars.pipelines_docker_repo.name}/${local.artifact_registry_vars.pipelines_docker_repo.base_image_name} --delete-tags"
+
+  create_cmd_triggers = {
     docker_repo_id          = google_artifact_registry_repository.pipelines_docker_repo.id
     docker_repo_create_time = google_artifact_registry_repository.pipelines_docker_repo.create_time
-    source_content_hash     = local.component_image_content_hash
-  }
-
-  # The provisioner block specifies the command that will be executed to build and push the base component image.
-  # This command will execute the build-push function in the base_component_image module, which will build and push the base component image to the specified Docker repository.
-  provisioner "local-exec" {
-    command     = "${var.uv_run_alias} python -m base_component_image.build-push -c ${local.config_file_path_relative_python_run_dir}"
-    working_dir = self.triggers.working_dir
+    source_contents_hash    = local.component_image_content_hash
   }
 }
 
@@ -342,7 +351,7 @@ resource "null_resource" "check_pipeline_docker_image_pushed" {
 
   depends_on = [
     module.project_services,
-    null_resource.build_push_pipelines_components_image
+    module.build_push_pipelines_components_image.wait
   ]
 }
 
@@ -358,7 +367,7 @@ resource "null_resource" "compile_feature_engineering_auto_audience_segmentation
     pipelines_repo_id            = google_artifact_registry_repository.pipelines-repo.id
     pipelines_repo_create_time   = google_artifact_registry_repository.pipelines-repo.create_time
     source_content_hash          = local.pipelines_content_hash
-    upstream_resource_dependency = null_resource.build_push_pipelines_components_image.id
+    upstream_resource_dependency = module.build_push_pipelines_components_image.wait
   }
 
   # The provisioner block specifies the command that will be executed to compile and upload the pipeline.

@@ -338,6 +338,19 @@ module "data_store" {
   time_zone = var.time_zone
 }
 
+module "cloud_build_account" {
+  source     = "github.com/terraform-google-modules/terraform-google-service-accounts?ref=a11d4127eab9b51ec9c9afdaf51b902cd2c240d9" #commit hash of version 4.0.0
+  project_id = var.feature_store_project_id
+  names      = ["cloud-build"]
+  project_roles = [
+    "${var.project_id}=>roles/logging.logWriter",
+    "${var.project_id}=>roles/storage.admin",
+    "${var.project_id}=>roles/artifactregistry.writer",
+  ]
+  display_name = "Cloud Build Service Account"
+  description  = "specific custom service account for Cloud Build"
+}
+
 
 
 # Create the feature store module.
@@ -382,6 +395,8 @@ module "pipelines" {
   # The project_id is the project in which the data is stored.
   # This is set to the data project ID in the terraform.tfvars file.
   mds_project_id = var.data_project_id
+  # Specify dedicated service account for Cloud Build jobs.
+  cloud_build_service_account_email = module.cloud_build_service_account.email
 }
 
 
@@ -440,6 +455,8 @@ module "activation" {
   # The project_owner_email is set in the terraform.tfvars file. 
   # An example of a valid email address is "william.mckinley@my-own-personal-domain.com".
   project_owner_email = var.project_owner_email
+  # Specify dedicated service account for Cloud Build jobs.
+  cloud_build_service_account_email = module.cloud_build_service_account.email
 }
 
 

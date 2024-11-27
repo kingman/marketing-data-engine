@@ -84,3 +84,8 @@ variable "project_owner_email" {
   description = "Email address of the project owner."
   type        = string
 }
+
+variable "cloud_build_service_account_email" {
+  description = "the user-managed service account configured for Cloud Build"
+  type        = string
+}

@@ -26,3 +26,8 @@ variable "mds_project_id" {
   description = "Google Cloud Project ID for MDS"
   type        = string
 }
+
+variable "cloud_build_service_account_email" {
+  description = "the user-managed service account configured for Cloud Build"
+  type        = string
+}
