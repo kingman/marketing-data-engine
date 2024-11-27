@@ -343,9 +343,9 @@ module "cloud_build_account" {
   project_id = var.feature_store_project_id
   names      = ["cloud-build"]
   project_roles = [
-    "${var.project_id}=>roles/logging.logWriter",
-    "${var.project_id}=>roles/storage.admin",
-    "${var.project_id}=>roles/artifactregistry.writer",
+    "${var.feature_store_project_id}=>roles/logging.logWriter",
+    "${var.feature_store_project_id}=>roles/storage.admin",
+    "${var.feature_store_project_id}=>roles/artifactregistry.writer",
   ]
   display_name = "Cloud Build Service Account"
   description  = "specific custom service account for Cloud Build"
