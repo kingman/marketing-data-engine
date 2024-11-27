@@ -338,7 +338,7 @@ module "data_store" {
   time_zone = var.time_zone
 }
 
-module "cloud_build_account" {
+module "cloud_build_service_account" {
   source     = "github.com/terraform-google-modules/terraform-google-service-accounts?ref=a11d4127eab9b51ec9c9afdaf51b902cd2c240d9" #commit hash of version 4.0.0
   project_id = var.feature_store_project_id
   names      = ["cloud-build"]
