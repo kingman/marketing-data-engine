@@ -21,3 +21,4 @@ roles/aiplatform.admin
 roles/cloudasset.viewer
 roles/cloudkms.admin
 roles/cloudbuild.builds.editor
+roles/run.admin
