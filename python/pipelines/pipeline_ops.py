@@ -610,7 +610,6 @@ def get_default_auth() -> credentials:
     """
     # Get the default credentials for the current environment.
     creds, project = google.auth.default()
-    print(f'##########--------------- This is the {project=} ---------------##########')
     return credentials.with_scopes_if_required(creds, "https://www.googleapis.com/auth/cloud-platform")
 
 def get_gcp_bearer_token() -> str:
@@ -708,6 +707,7 @@ def schedule_pipeline(
         pipeline_job_schedules as preview_pipeline_job_schedules,
     )
 
+    aiplatform.init(project=project_id, location=region)
     # Substitute pipeline parameters with necessary substitutions
     if pipeline_parameters_substitutions != None:
         pipeline_parameters = substitute_pipeline_params(
