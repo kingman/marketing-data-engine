@@ -35,33 +35,36 @@ steps:
         export GOOGLE_IMPERSONATE_SERVICE_ACCOUNT=${_DEPLOYER_SA};
         gcloud config set project ${_TEST_PROJECT_ID};
         gcloud config set auth/impersonate_service_account ${_DEPLOYER_SA};
-        envsubst < "cloudbuild/terraform-template.tfvars" > "infrastructure/terraform/terraform.tfvars";
         cd /workspace/infrastructure/terraform;
         terraform init;
         terraform apply -auto-approve;
 
     entrypoint: /bin/bash
     env:
-      - "MAJ_DEFAULT_PROJECT_ID=${_TEST_PROJECT_ID}"
-      - "MAJ_DEFAULT_REGION=${_REGION}"
-      - "MAJ_MDS_PROJECT_ID=${_TEST_PROJECT_ID}"
-      - "MAJ_MDS_DATA_LOCATION=${_REGION}"
-      - "MAJ_MDS_DATAFORM_PROJECT_ID=${_TEST_PROJECT_ID}"
-      - "MAJ_GA4_EXPORT_PROJECT_ID=${PROJECT_ID}"
-      - "MAJ_GA4_EXPORT_DATASET=${_GA4_EXPORT_DATASET}"
-      - "MAJ_ADS_EXPORT_PROJECT_ID=${PROJECT_ID}"
-      - "MAJ_ADS_EXPORT_DATASET=${_ADS_EXPORT_DATASET}"
-      - "MAJ_ADS_EXPORT_TABLE_SUFFIX=${_ADS_EXPORT_TABLE_SUFFIX}"
-      - "MAJ_FEATURE_STORE_PROJECT_ID=${_TEST_PROJECT_ID}"
-      - "MAJ_WEBSITE_URL=${_WEBSITE_URL}"
-      - "MAJ_ACTIVATION_PROJECT_ID=${_TEST_PROJECT_ID}"
-      - "MAJ_GA4_PROPERTY_ID=${_GA4_PROPERTY_ID}"
-      - "MAJ_GA4_STREAM_ID=${_GA4_STREAM_ID}"
-      - "MAJ_GA4_MEASUREMENT_ID=${_GA4_MEASUREMENT_ID}"
-      - "MAJ_GA4_MEASUREMENT_SECRET=${_GA4_MEASUREMENT_SECRET}"
-      - "MAJ_DATAFORM_REPO_OWNER_EMAIL=${_DATAFORM_REPO_OWNER_EMAIL}"
-      - "MAJ_DATAFORM_GITHUB_REPO_URL=${_DATAFORM_GITHUB_REPO_URL}"
-      - "MAJ_DATAFORM_GITHUB_TOKEN=${_DATAFORM_GITHUB_TOKEN}"
+      - TF_VAR_tf_state_project_id=${_TEST_PROJECT_ID}
+      - TF_VAR_google_default_region=${_REGION}
+      - TF_VAR_deploy_dataform=true
+      - TF_VAR_deploy_activation=true
+      - TF_VAR_deploy_feature_store=true
+      - TF_VAR_deploy_pipelines=true
+      - TF_VAR_deploy_monitoring=true
+      - TF_VAR_data_project_id=${_TEST_PROJECT_ID}
+      - TF_VAR_destination_data_location=${_REGION}
+      - TF_VAR_property_id=${_GA4_PROPERTY_ID}
+      - TF_VAR_data_processing_project_id=${_TEST_PROJECT_ID}
+      - TF_VAR_source_ga4_export_project_id=${PROJECT_ID}
+      - TF_VAR_source_ga4_export_dataset=${_GA4_EXPORT_DATASET}
+      - TF_VAR_source_ads_export_data="[{ project = \"${PROJECT_ID}\", dataset = \"${_ADS_EXPORT_DATASET}\", table_suffix = \"${_ADS_EXPORT_TABLE_SUFFIX}\" }]"
+      - TF_VAR_feature_store_project_id=${_TEST_PROJECT_ID}
+      - TF_VAR_website_url=${_WEBSITE_URL}
+      - TF_VAR_activation_project_id=${_TEST_PROJECT_ID}
+      - TF_VAR_ga4_property_id=${_GA4_PROPERTY_ID}
+      - TF_VAR_ga4_stream_id=${_GA4_STREAM_ID}
+      - TF_VAR_ga4_measurement_id=${_GA4_MEASUREMENT_ID}
+      - TF_VAR_ga4_measurement_secret=${_GA4_MEASUREMENT_SECRET}
+      - TF_VAR_project_owner_email=${_DATAFORM_REPO_OWNER_EMAIL}
+      - TF_VAR_dataform_github_repo=${_DATAFORM_GITHUB_REPO_URL}
+      - TF_VAR_dataform_github_token=${_DATAFORM_GITHUB_TOKEN}
 
 tags:
   - "ci"
@@ -78,4 +81,16 @@ substitutions:
 # The following subsitutions must be passed by the Cloud Build trigger:
 # _BILLING_ACCOUNT
 # _FOLDER_ID
+# _REGION
+# _GA4_EXPORT_DATASET
+# _ADS_EXPORT_DATASET
+# _ADS_EXPORT_TABLE_SUFFIX
+# _WEBSITE_URL
+# _GA4_PROPERTY_ID
+# _GA4_STREAM_ID
+# _GA4_MEASUREMENT_ID
+# _GA4_MEASUREMENT_SECRET
+# _DATAFORM_REPO_OWNER_EMAIL
+# _DATAFORM_GITHUB_REPO_URL
+# _DATAFORM_GITHUB_TOKEN
     
