@@ -54,7 +54,7 @@ steps:
       - TF_VAR_data_processing_project_id=${_TEST_PROJECT_ID}
       - TF_VAR_source_ga4_export_project_id=${PROJECT_ID}
       - TF_VAR_source_ga4_export_dataset=${_GA4_EXPORT_DATASET}
-      - TF_VAR_source_ads_export_data="[{ project = \"${PROJECT_ID}\", dataset = \"${_ADS_EXPORT_DATASET}\", table_suffix = \"${_ADS_EXPORT_TABLE_SUFFIX}\" }]"
+      - TF_VAR_source_ads_export_data='[{ project = "${PROJECT_ID}", dataset = "${_ADS_EXPORT_DATASET}", table_suffix = "${_ADS_EXPORT_TABLE_SUFFIX}" }]'
       - TF_VAR_feature_store_project_id=${_TEST_PROJECT_ID}
       - TF_VAR_website_url=${_WEBSITE_URL}
       - TF_VAR_activation_project_id=${_TEST_PROJECT_ID}
