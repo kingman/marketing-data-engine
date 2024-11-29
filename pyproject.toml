@@ -84,6 +84,7 @@ toml = "0.10.2"
 
 [tool.poetry.scripts]
 ga4-setup = "python.ga4_setup.setup:entry"
+bq-set-permissions = "python.data_store.setup:set_bq_permission"
 
 [tool.poetry.group.test.dependencies]
 pytest = "7.0.0"

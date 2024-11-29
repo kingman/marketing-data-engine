@@ -23,6 +23,13 @@ steps:
         export PROJECT_ID=${_TEST_PROJECT_ID};
         export MAJ_USE_DEPLOYER_SA=true;
         scripts/generate-tf-backend.sh;
+        uv run bq-set-permissions;
+    env:
+      - TF_VAR_source_ga4_export_project_id=${PROJECT_ID}
+      - TF_VAR_source_ga4_export_dataset=${_GA4_EXPORT_DATASET}
+      - TF_VAR_source_ga4_export_dataset=${_GA4_EXPORT_DATASET}
+      - TF_VAR_source_ads_export_data=[{ project = "${PROJECT_ID}", dataset = "${_ADS_EXPORT_DATASET}", table_suffix = "${_ADS_EXPORT_TABLE_SUFFIX}" }]
+      - _DEPLOYER_SA=${_DEPLOYER_SA}
 
   - id: run-terraform
     name: "${_BUILDER_IMAGE_NAME}:${_BUILDER_IMAGE_TAG}"
