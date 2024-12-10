@@ -153,12 +153,9 @@ def load_event_names():
   Returns:
     A list of event names.
   """
-  fo = open('templates/activation_type_configuration_template.tpl')
-  activation_types_obj = json.load(fo)
-  event_names = []
-  for k in activation_types_obj:
-    event_names.append(activation_types_obj[k]['activation_event_name'])
-  return event_names
+  with open('templates/activation_type_configuration_template.tpl') as fo:
+    activation_types_obj = json.load(fo)
+  return [ato['activation_event_name'] for _, ato in activation_types_obj.items()]
 
 
 
