@@ -61,7 +61,7 @@ Also, this method allows you to extend this solution and develop it to satisfy y
     . scripts/ga4_setup_and_config.sh
     ```
     Use an account that has admin access to your Google Analytics 4 (GA4) property when prompted to authenticate in the script. The scripts uses the credential to access and setup the custom events and dimensions in your GA4 property.
-    You can choose to skip this step but need to make sure that 
+    You can choose to skip this step but need to make sure that:
     - The events listed in the [activation type configuration](../../templates/activation_type_configuration_template.tpl) are created in your GA4 property.
     - The following user dimensions are created in your GA4 property
         |Parameter Name|
