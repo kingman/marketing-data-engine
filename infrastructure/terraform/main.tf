@@ -124,6 +124,9 @@ resource "local_file" "feature_store_configuration" {
     #    TODO: this needs to be specific to environment.
     location  = var.destination_data_location
     time_zone = var.time_zone
+    pipeline_configuration = var.pipeline_configuration
+    non_ecomm_events_list = var.non_ecomm_events_list
+    non_ecomm_target_event = var.non_ecomm_target_event
   })
 }
 
@@ -175,7 +178,7 @@ resource "null_resource" "generate_sql_queries" {
 
 module "initial_project_services" {
   source  = "terraform-google-modules/project-factory/google//modules/project_services"
-  version = "17.0.0"
+  version = "18.0.0"
 
   disable_dependent_services  = false
   disable_services_on_destroy = false
