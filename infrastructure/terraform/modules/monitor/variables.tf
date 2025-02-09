@@ -56,3 +56,8 @@ variable "purchase_propensity_dataset_id" {
   description = "Purchase Propensity use case dataset"
   type        = string
 }
+
+variable "smart_bidding_configuration_table" {
+  description = "smart bidding configuration table name"
+  type        = string
+}

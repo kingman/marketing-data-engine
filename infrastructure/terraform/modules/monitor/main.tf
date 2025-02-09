@@ -265,9 +265,10 @@ data "template_file" "looker_studio_dashboard_url" {
 data "template_file" "purchase_propensity_prediction_stats_query" {
   template = file("${local.source_root_dir}/templates/purchase_propensity_smart_bidding_view.sql.tpl")
   vars = {
-    project_id                  = var.feature_store_project_id
-    purchase_propensity_dataset = var.purchase_propensity_dataset_id
-    activation_dataset          = "activation"
+    project_id                        = var.feature_store_project_id
+    purchase_propensity_dataset       = var.purchase_propensity_dataset_id
+    activation_dataset                = "activation"
+    smart_bidding_configuration_table = var.smart_bidding_configuration_table
   }
 }
 
