@@ -497,7 +497,7 @@ resource "google_bigquery_table" "purchase_propurchase_propensity_predictions_pl
   # The schema attribute specifies the schema of the table. In this case, the schema is defined in the JSON file.
   schema = file("${local.sql_dir}/schema/table/purchase_propensity_predictions_placeholder.json")
 
-  # The lifecycle block is used to configure the lifecycle of the table. In this case, the ignore_changes attribute is set to all, which means that Terraform will ignore 
+  # The lifecycle block is used to configure the lifecycle of the table. In this case, the ignore_changes attribute is set to all, which means that Terraform will ignore
   # any changes to the table and will not attempt to update the table.
   lifecycle {
     ignore_changes  = all
