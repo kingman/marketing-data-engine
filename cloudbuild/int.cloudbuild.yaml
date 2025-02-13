@@ -73,6 +73,18 @@ steps:
       - TF_VAR_dataform_github_repo=${_DATAFORM_GITHUB_REPO_URL}
       - TF_VAR_dataform_github_token=${_DATAFORM_GITHUB_TOKEN}
 
+  - id: run_dataform_test
+    name: "${_BUILDER_IMAGE_NAME}:${_BUILDER_IMAGE_TAG}"
+    entrypoint: /bin/bash
+    args:
+      - "-c"
+      - >- # folded text - replace newlines with spaces - each command needs to be separated by ';'
+        uv run pytest cloudbuild/test/;
+    env:
+      - PROJECT_ID=${_TEST_PROJECT_ID}
+      - REGION=${_REGION}
+      - GA4_PROPERTY_ID=${_GA4_PROPERTY_ID}
+
 tags:
   - "ci"
   - "integration"

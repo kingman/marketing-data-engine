@@ -107,9 +107,15 @@ flake8-annotations = "2.9.1"
 requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
 
+[dependency-groups]
+dev = [
+    "pytest-mock>=3.14.0",
+    "pytest>=8.3.4",
+    "google-cloud-workflows>=1.16.0",
+    "google-cloud-dataform>=0.5.15",
+]
+
 [tool.pytest.ini_options]
-addopts = "-vv -s --variables config/config.yaml" 
-variables = "config/config.yaml"
 testpaths = ["python/pipelines"]
 markers = [
     "unit",
@@ -120,7 +126,8 @@ markers = [
     "customer_seg_pl",
     "current",
     "curl",
-    "schedule"
+    "schedule",
+    "dataform"
 ]
 log_cli=true
 log_level="INFO"
