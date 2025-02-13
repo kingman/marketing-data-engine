@@ -20,3 +20,8 @@ bigquerydatatransfer.googleapis.com
 dataform.googleapis.com
 cloudkms.googleapis.com
 servicenetworking.googleapis.com
+artifactregistry.googleapis.com
+cloudbuild.googleapis.com
+aiplatform.googleapis.com
+storage-api.googleapis.com
+bigqueryconnection.googleapis.com
