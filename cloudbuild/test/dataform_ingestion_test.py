@@ -21,11 +21,19 @@ GA4_PROPERTY = os.getenv("GA4_PROPERTY_ID")
 def test_dataform_execution():
     assert PROJECT, "'PROJECT_ID' environment variable not set."
     assert GA4_PROPERTY, "'GA4_PROPERTY_ID' environment variable not set."
+
+    # Initial workflow run
     workflow_execution = execute_workflow(PROJECT, LOCATION, f"dataform-{GA4_PROPERTY}-incremental")
     assert workflow_execution.state == executions.Execution.State.SUCCEEDED
     invocation = wait_latest_dataform(PROJECT, LOCATION)
     assert invocation, "Dataform invocation not found"
     check_analytics_tables_are_populated(PROJECT, GA4_PROPERTY)
+
+    # Run the workflow the 2nd time to trigger incremental flow
+    workflow_execution = execute_workflow(PROJECT, LOCATION, f"dataform-{GA4_PROPERTY}-incremental")
+    assert workflow_execution.state == executions.Execution.State.SUCCEEDED
+    invocation = wait_latest_dataform(PROJECT, LOCATION)
+    assert invocation, "Dataform invocation not found"
     check_ads_tables_are_populated(PROJECT, GA4_PROPERTY)
 
 def wait_latest_dataform(project, location, timeout_seconds=300):
