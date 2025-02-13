@@ -49,6 +49,7 @@ steps:
     entrypoint: /bin/bash
     env:
       - TF_VAR_tf_state_project_id=${_TEST_PROJECT_ID}
+      - TF_VAR_main_project_id=${_TEST_PROJECT_ID}
       - TF_VAR_google_default_region=${_REGION}
       - TF_VAR_deploy_dataform=true
       - TF_VAR_deploy_activation=true

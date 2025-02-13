@@ -411,6 +411,20 @@ variable "pipeline_configuration" {
         }
       }
     }
+    gemini_insights = {
+      execution = {
+        schedule = {
+          state                    = "PAUSED"
+        }
+      }
+    }
+    reporting_preparation = {
+      execution = {
+        schedule = {
+          state                    = "PAUSED"
+        }
+      }
+    }
   }
   validation {
     condition = alltrue([
