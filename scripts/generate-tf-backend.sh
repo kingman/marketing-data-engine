@@ -48,7 +48,7 @@ section_close
 
 if [ -z "${MAJ_USE_DEPLOYER_SA:-}" ]; then
     echo "Use ${CURRENT_USER} for deployment"
-    GCS_IMPERSONATION_PARAM=""
+    CS_IMPERSONATION_PARAM=""
 else
     if [[ "${MAJ_USE_DEPLOYER_SA}" == "true" ]]; then
     section_open "Create deployer service account and enable $CURRENT_USER to use service account impersonation "
@@ -60,8 +60,8 @@ else
     section_open "Set Application Default Credentials to be used by Terraform"
         set_adc
     section_close
-    fi
     CS_IMPERSONATION_PARAM="-i ${SERVICE_ACCOUNT_ID}"
+    fi
 fi
 
 section_open  "Check and set the LOCATION variable"
