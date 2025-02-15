@@ -35,7 +35,20 @@ logging.basicConfig(level="INFO")
 logger = logging.getLogger(__name__)
 
 def get_project_api_services(project_id, api_names):
+    result = []
     client = service_usage_v1.ServiceUsageClient()
+    index = 0
+    batch_max_size = 30
+    while (index+1)*batch_max_size < len(api_names):
+        api_names_sub_list = api_names[index*batch_max_size:(index+1)*batch_max_size]
+        result.extend(_get_project_api_services(client, project_id, api_names_sub_list))
+        index += 1
+    api_names_sub_list = api_names[index*batch_max_size:]
+    result.extend(_get_project_api_services(client, project_id, api_names_sub_list))
+    return result
+
+
+def _get_project_api_services(client, project_id, api_names):
     request = service_usage_v1.BatchGetServicesRequest(parent=f"projects/{project_id}", names=api_names)
     response = client.batch_get_services(request=request)
     return [(service.name, service.state) for service in response.services]
@@ -47,18 +60,20 @@ def get_api_names_from_file(filepath, project_id):
 def enable_project_api_services(project_id, service_ids):
     client = service_usage_v1.ServiceUsageClient()
     index = 0
-    while (index+1)*20 < len(service_ids):
-        service_ids_sub_list = service_ids[index*20:(index+1)*20]
+    batch_max_size = 20
+    while (index+1)*batch_max_size < len(service_ids):
+        service_ids_sub_list = service_ids[index*batch_max_size:(index+1)*batch_max_size]
         _enable_project_api_services(client, project_id, service_ids_sub_list)        
         index += 1
-    service_ids_sub_list = service_ids[index*20:]
+    service_ids_sub_list = service_ids[index*batch_max_size:]
     _enable_project_api_services(client, project_id, service_ids_sub_list)
 
 def _enable_project_api_services(client, project_id, service_ids):
     request = service_usage_v1.BatchEnableServicesRequest(parent=f"projects/{project_id}", service_ids=service_ids)
     operation = client.batch_enable_services(request=request)
     response = operation.result()
-    logger.info(response)
+    for service in response.services:
+        logger.info(f"{service.name}: {service.state.name}")
 
 
 def service_apis_setup():

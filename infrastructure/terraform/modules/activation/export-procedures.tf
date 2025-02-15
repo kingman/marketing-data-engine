@@ -21,7 +21,7 @@ data "template_file" "purchase_propensity_csv_export_query" {
 }
 
 resource "google_bigquery_routine" "export_purchase_propensity_procedure" {
-  project         = null_resource.check_bigquery_api.id != "" ? module.project_services.project_id : var.project_id
+  project         = var.project_id
   dataset_id      = module.bigquery.bigquery_dataset.dataset_id
   routine_id      = "export_purchase_propensity_predictions"
   routine_type    = "PROCEDURE"
@@ -44,7 +44,7 @@ data "template_file" "cltv_csv_export_query" {
 }
 
 resource "google_bigquery_routine" "export_cltv_procedure" {
-  project         = null_resource.check_bigquery_api.id != "" ? module.project_services.project_id : var.project_id
+  project         = var.project_id
   dataset_id      = module.bigquery.bigquery_dataset.dataset_id
   routine_id      = "export_cltv_predictions"
   routine_type    = "PROCEDURE"
@@ -67,7 +67,7 @@ data "template_file" "audience_segmentation_csv_export_query" {
 }
 
 resource "google_bigquery_routine" "export_audience_segmentation_procedure" {
-  project         = null_resource.check_bigquery_api.id != "" ? module.project_services.project_id : var.project_id
+  project         = var.project_id
   dataset_id      = module.bigquery.bigquery_dataset.dataset_id
   routine_id      = "export_audience_segmentation_predictions"
   routine_type    = "PROCEDURE"
@@ -90,7 +90,7 @@ data "template_file" "auto_audience_segmentation_csv_export_query" {
 }
 
 resource "google_bigquery_routine" "export_auto_audience_segmentation_procedure" {
-  project         = null_resource.check_bigquery_api.id != "" ? module.project_services.project_id : var.project_id
+  project         = var.project_id
   dataset_id      = module.bigquery.bigquery_dataset.dataset_id
   routine_id      = "export_auto_audience_segmentation_predictions"
   routine_type    = "PROCEDURE"
@@ -113,7 +113,7 @@ data "template_file" "churn_propensity_csv_export_query" {
 }
 
 resource "google_bigquery_routine" "export_churn_propensity_procedure" {
-  project         = null_resource.check_bigquery_api.id != "" ? module.project_services.project_id : var.project_id
+  project         = var.project_id
   dataset_id      = module.bigquery.bigquery_dataset.dataset_id
   routine_id      = "export_churn_propensity_predictions"
   routine_type    = "PROCEDURE"
@@ -136,7 +136,7 @@ data "template_file" "lead_score_propensity_csv_export_query" {
 }
 
 resource "google_bigquery_routine" "export_lead_score_propensity_procedure" {
-  project         = null_resource.check_bigquery_api.id != "" ? module.project_services.project_id : var.project_id
+  project         = var.project_id
   dataset_id      = module.bigquery.bigquery_dataset.dataset_id
   routine_id      = "export_lead_score_propensity_predictions"
   routine_type    = "PROCEDURE"

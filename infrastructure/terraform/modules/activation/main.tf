@@ -78,279 +78,6 @@ data "google_project" "activation_project" {
   project_id = var.project_id
 }
 
-module "project_services" {
-  source  = "terraform-google-modules/project-factory/google//modules/project_services"
-  version = "18.0.0"
-
-  disable_dependent_services  = false
-  disable_services_on_destroy = false
-
-  project_id = var.project_id
-
-  activate_apis = [
-    "artifactregistry.googleapis.com",
-    "secretmanager.googleapis.com",
-    "pubsub.googleapis.com",
-    "cloudfunctions.googleapis.com",
-    "cloudbuild.googleapis.com",
-    "dataflow.googleapis.com",
-    "bigquery.googleapis.com",
-    "logging.googleapis.com",
-    "aiplatform.googleapis.com",
-    "bigquerystorage.googleapis.com",
-    "storage.googleapis.com",
-    "datapipelines.googleapis.com",
-    "analyticsadmin.googleapis.com",
-    "eventarc.googleapis.com",
-    "run.googleapis.com",
-    "cloudkms.googleapis.com"
-  ]
-}
-
-# This resource executes gcloud commands to check whether the BigQuery API is enabled.
-# Since enabling APIs can take a few seconds, we need to make the deployment wait until the API is enabled before resuming.
-resource "null_resource" "check_bigquery_api" {
-  provisioner "local-exec" {
-    command = <<-EOT
-    COUNTER=0
-    MAX_TRIES=100
-    while ! gcloud services list --project=${module.project_services.project_id} | grep -i "bigquery.googleapis.com" && [ $COUNTER -lt $MAX_TRIES ]
-    do
-      sleep 6
-      printf "."
-      COUNTER=$((COUNTER + 1))
-    done
-    if [ $COUNTER -eq $MAX_TRIES ]; then
-      echo "bigquery api is not enabled, terraform can not continue!"
-      exit 1
-    fi
-    sleep 20
-    EOT
-  }
-
-  depends_on = [
-    module.project_services
-  ]
-}
-
-# This resource executes gcloud commands to check whether the artifact registry API is enabled.
-# Since enabling APIs can take a few seconds, we need to make the deployment wait until the API is enabled before resuming.
-resource "null_resource" "check_artifactregistry_api" {
-  provisioner "local-exec" {
-    command = <<-EOT
-    COUNTER=0
-    MAX_TRIES=100
-    while ! gcloud services list --project=${module.project_services.project_id} | grep -i "artifactregistry.googleapis.com" && [ $COUNTER -lt $MAX_TRIES ]
-    do
-      sleep 6
-      printf "."
-      COUNTER=$((COUNTER + 1))
-    done
-    if [ $COUNTER -eq $MAX_TRIES ]; then
-      echo "pubsub api is not enabled, terraform can not continue!"
-      exit 1
-    fi
-    sleep 20
-    EOT
-  }
-
-  depends_on = [
-    module.project_services
-  ]
-}
-
-# This resource executes gcloud commands to check whether the PubSub API is enabled.
-# Since enabling APIs can take a few seconds, we need to make the deployment wait until the API is enabled before resuming.
-resource "null_resource" "check_pubsub_api" {
-  provisioner "local-exec" {
-    command = <<-EOT
-    COUNTER=0
-    MAX_TRIES=100
-    while ! gcloud services list --project=${module.project_services.project_id} | grep -i "pubsub.googleapis.com" && [ $COUNTER -lt $MAX_TRIES ]
-    do
-      sleep 6
-      printf "."
-      COUNTER=$((COUNTER + 1))
-    done
-    if [ $COUNTER -eq $MAX_TRIES ]; then
-      echo "artifact registry api is not enabled, terraform can not continue!"
-      exit 1
-    fi
-    sleep 20
-    EOT
-  }
-
-  depends_on = [
-    module.project_services
-  ]
-}
-
-# This resource executes gcloud commands to check whether the analyticsadmin API is enabled.
-# Since enabling APIs can take a few seconds, we need to make the deployment wait until the API is enabled before resuming.
-resource "null_resource" "check_analyticsadmin_api" {
-  provisioner "local-exec" {
-    command = <<-EOT
-    COUNTER=0
-    MAX_TRIES=100
-    while ! gcloud services list --project=${module.project_services.project_id} | grep -i "analyticsadmin.googleapis.com" && [ $COUNTER -lt $MAX_TRIES ]
-    do
-      sleep 6
-      printf "."
-      COUNTER=$((COUNTER + 1))
-    done
-    if [ $COUNTER -eq $MAX_TRIES ]; then
-      echo "analyticsadmin api is not enabled, terraform can not continue!"
-      exit 1
-    fi
-    sleep 20
-    EOT
-  }
-
-  depends_on = [
-    module.project_services
-  ]
-}
-
-# This resource executes gcloud commands to check whether the dataflow API is enabled.
-# Since enabling APIs can take a few seconds, we need to make the deployment wait until the API is enabled before resuming.
-resource "null_resource" "check_dataflow_api" {
-  provisioner "local-exec" {
-    command = <<-EOT
-    COUNTER=0
-    MAX_TRIES=100
-    while ! gcloud services list --project=${module.project_services.project_id} | grep -i "dataflow.googleapis.com" && [ $COUNTER -lt $MAX_TRIES ]
-    do
-      sleep 6
-      printf "."
-      COUNTER=$((COUNTER + 1))
-    done
-    if [ $COUNTER -eq $MAX_TRIES ]; then
-      echo "dataflow api is not enabled, terraform can not continue!"
-      exit 1
-    fi
-    sleep 20
-    EOT
-  }
-
-  depends_on = [
-    module.project_services
-  ]
-}
-
-# This resource executes gcloud commands to check whether the secretmanager API is enabled.
-# Since enabling APIs can take a few seconds, we need to make the deployment wait until the API is enabled before resuming.
-resource "null_resource" "check_secretmanager_api" {
-  provisioner "local-exec" {
-    command = <<-EOT
-    COUNTER=0
-    MAX_TRIES=100
-    while ! gcloud services list --project=${module.project_services.project_id} | grep -i "secretmanager.googleapis.com" && [ $COUNTER -lt $MAX_TRIES ]
-    do
-      sleep 6
-      printf "."
-      COUNTER=$((COUNTER + 1))
-    done
-    if [ $COUNTER -eq $MAX_TRIES ]; then
-      echo "secretmanager api is not enabled, terraform can not continue!"
-      exit 1
-    fi
-    sleep 20
-    EOT
-  }
-
-  depends_on = [
-    module.project_services
-  ]
-}
-
-# This resource executes gcloud commands to check whether the cloudfunctions API is enabled.
-# Since enabling APIs can take a few seconds, we need to make the deployment wait until the API is enabled before resuming.
-resource "null_resource" "check_cloudfunctions_api" {
-  provisioner "local-exec" {
-    command = <<-EOT
-    COUNTER=0
-    MAX_TRIES=100
-    while ! gcloud services list --project=${module.project_services.project_id} | grep -i "cloudfunctions.googleapis.com" && [ $COUNTER -lt $MAX_TRIES ]
-    do
-      sleep 6
-      printf "."
-      COUNTER=$((COUNTER + 1))
-    done
-    if [ $COUNTER -eq $MAX_TRIES ]; then
-      echo "cloudfunctions api is not enabled, terraform can not continue!"
-      exit 1
-    fi
-    sleep 20
-    EOT
-  }
-
-  depends_on = [
-    module.project_services
-  ]
-}
-
-# This resource executes gcloud commands to check whether the cloudbuild API is enabled.
-# Since enabling APIs can take a few seconds, we need to make the deployment wait until the API is enabled before resuming.
-resource "null_resource" "check_cloudbuild_api" {
-  provisioner "local-exec" {
-    command = <<-EOT
-    COUNTER=0
-    MAX_TRIES=100
-    while ! gcloud services list --project=${module.project_services.project_id} | grep -i "cloudbuild.googleapis.com" && [ $COUNTER -lt $MAX_TRIES ]
-    do
-      sleep 6
-      printf "."
-      COUNTER=$((COUNTER + 1))
-    done
-    if [ $COUNTER -eq $MAX_TRIES ]; then
-      echo "cloudbuild api is not enabled, terraform can not continue!"
-      exit 1
-    fi
-    sleep 20
-    EOT
-  }
-
-  depends_on = [
-    module.project_services
-  ]
-
-  # The lifecycle block of the google_artifact_registry_repository resource defines a precondition that 
-  # checks if the specified region is included in the vertex_pipelines_available_locations list. 
-  # If the condition is not met, an error message is displayed and the Terraform configuration will fail.
-  lifecycle {
-    precondition {
-      condition     = contains(local.cloud_build_available_locations, var.location)
-      error_message = "Cloud Build is not available in your default region: ${var.location}.\nSet 'google_default_region' variable to a valid Cloud Build location, see Restricted Regions in https://cloud.google.com/build/docs/locations."
-    }
-  }
-}
-
-# This resource executes gcloud commands to check whether the IAM API is enabled.
-# Since enabling APIs can take a few seconds, we need to make the deployment wait until the API is enabled before resuming.
-resource "null_resource" "check_cloudkms_api" {
-  provisioner "local-exec" {
-    command = <<-EOT
-    COUNTER=0
-    MAX_TRIES=100
-    while ! gcloud services list --project=${module.project_services.project_id} | grep -i "cloudkms.googleapis.com" && [ $COUNTER -lt $MAX_TRIES ]
-    do
-      sleep 6
-      printf "."
-      COUNTER=$((COUNTER + 1))
-    done
-    if [ $COUNTER -eq $MAX_TRIES ]; then
-      echo "cloud kms api is not enabled, terraform can not continue!"
-      exit 1
-    fi
-    sleep 20
-    EOT
-  }
-
-  depends_on = [
-    module.project_services
-  ]
-}
-
 module "bigquery" {
   source  = "terraform-google-modules/bigquery/google"
   version = "9.0.0"
@@ -358,14 +85,14 @@ module "bigquery" {
   dataset_id                 = local.app_prefix
   dataset_name               = local.app_prefix
   description                = "activation application logs"
-  project_id                 = null_resource.check_bigquery_api.id != "" ? module.project_services.project_id : var.project_id
+  project_id                 = var.project_id
   location                   = var.data_location
   delete_contents_on_destroy = false
 }
 
 # This resource creates an Artifact Registry repository for the docker images used by the Activation Application.
 resource "google_artifact_registry_repository" "activation_repository" {
-  project       = null_resource.check_artifactregistry_api.id != "" ? module.project_services.project_id : var.project_id
+  project       = var.project_id
   location      = var.location
   repository_id = var.artifact_repository_id
   description   = "Docker image repository for the activation application dataflow job base image"
@@ -375,15 +102,15 @@ resource "google_artifact_registry_repository" "activation_repository" {
 module "pipeline_service_account" {
   source     = "terraform-google-modules/service-accounts/google"
   version    = "4.4.3"
-  project_id = null_resource.check_dataflow_api.id != "" ? module.project_services.project_id : var.project_id
+  project_id = var.project_id
   prefix     = local.app_prefix
   names      = [local.pipeline_service_account_name]
   project_roles = [
-    "${module.project_services.project_id}=>roles/dataflow.admin",
-    "${module.project_services.project_id}=>roles/dataflow.worker",
-    "${module.project_services.project_id}=>roles/bigquery.dataEditor",
-    "${module.project_services.project_id}=>roles/bigquery.jobUser",
-    "${module.project_services.project_id}=>roles/artifactregistry.writer",
+    "${var.project_id}=>roles/dataflow.admin",
+    "${var.project_id}=>roles/dataflow.worker",
+    "${var.project_id}=>roles/bigquery.dataEditor",
+    "${var.project_id}=>roles/bigquery.jobUser",
+    "${var.project_id}=>roles/artifactregistry.writer",
   ]
   display_name = "Dataflow worker Service Account"
   description  = "Activation Dataflow worker Service Account"
@@ -392,18 +119,18 @@ module "pipeline_service_account" {
 module "trigger_function_account" {
   source     = "terraform-google-modules/service-accounts/google"
   version    = "4.4.3"
-  project_id = null_resource.check_pubsub_api.id != "" ? module.project_services.project_id : var.project_id
+  project_id = var.project_id
   prefix     = local.app_prefix
   names      = [local.trigger_function_account_name]
   project_roles = [
-    "${module.project_services.project_id}=>roles/secretmanager.secretAccessor",
-    "${module.project_services.project_id}=>roles/dataflow.admin",
-    "${module.project_services.project_id}=>roles/dataflow.worker",
-    "${module.project_services.project_id}=>roles/bigquery.dataEditor",
-    "${module.project_services.project_id}=>roles/pubsub.editor",
-    "${module.project_services.project_id}=>roles/storage.admin",
-    "${module.project_services.project_id}=>roles/artifactregistry.reader",
-    "${module.project_services.project_id}=>roles/iam.serviceAccountUser",
+    "${var.project_id}=>roles/secretmanager.secretAccessor",
+    "${var.project_id}=>roles/dataflow.admin",
+    "${var.project_id}=>roles/dataflow.worker",
+    "${var.project_id}=>roles/bigquery.dataEditor",
+    "${var.project_id}=>roles/pubsub.editor",
+    "${var.project_id}=>roles/storage.admin",
+    "${var.project_id}=>roles/artifactregistry.reader",
+    "${var.project_id}=>roles/iam.serviceAccountUser",
   ]
   display_name = "Cloud Build Job Service Account"
   description  = "Service Account used to submit job the cloud build job"
@@ -420,7 +147,7 @@ resource "random_id" "random_suffix" {
 # to interact with other Google Cloud services on your behalf.
 resource "google_project_service_identity" "secretmanager_sa" {
   provider = google-beta
-  project  = null_resource.check_cloudkms_api.id != "" ? module.project_services.project_id : var.project_id
+  project  = var.project_id
   service  = "secretmanager.googleapis.com"
 }
 # This Key Ring can then be used to store and manage encryption keys for various purposes, 
@@ -430,7 +157,7 @@ resource "google_kms_key_ring" "key_ring_regional" {
   # If you want your replicas in other locations, change the location in the var.location variable passed as a parameter to this submodule.
   # if you your replicas stored global, set the location = "global".
   location = var.location
-  project  = null_resource.check_cloudkms_api.id != "" ? module.project_services.project_id : var.project_id
+  project  = var.project_id
 }
 
 # This key can then be used for various encryption operations, 
@@ -479,7 +206,7 @@ resource "google_kms_key_ring_iam_policy" "key_ring" {
 module "secret_manager" {
   source     = "GoogleCloudPlatform/secret-manager/google"
   version    = "0.7.0"
-  project_id = google_kms_crypto_key_iam_policy.crypto_key.etag != "" && google_kms_key_ring_iam_policy.key_ring.etag != "" ? module.project_services.project_id : var.project_id
+  project_id = google_kms_crypto_key_iam_policy.crypto_key.etag != "" && google_kms_key_ring_iam_policy.key_ring.etag != "" ? var.project_id : var.project_id
   secrets = [
     {
       name                  = "ga4-measurement-id"
@@ -526,8 +253,8 @@ module "secret_manager" {
 module "pipeline_bucket" {
   source     = "terraform-google-modules/cloud-storage/google//modules/simple_bucket"
   version    = "9.0.1"
-  project_id = null_resource.check_dataflow_api.id != "" ? module.project_services.project_id : var.project_id
-  name       = "${local.app_prefix}-app-${module.project_services.project_id}"
+  project_id = var.project_id
+  name       = "${local.app_prefix}-app-${var.project_id}"
   location   = var.location
   # When deleting a bucket, this boolean option will delete all contained objects. 
   # If false, Terraform will fail to delete buckets which contain objects.
@@ -557,12 +284,10 @@ module "pipeline_bucket" {
 # This resource binds the service account to the required roles
 resource "google_project_iam_member" "cloud_build_job_service_account" {
   depends_on = [
-    module.project_services,
-    null_resource.check_artifactregistry_api,
     data.google_project.project,
   ]
 
-  project = null_resource.check_artifactregistry_api.id != "" ? module.project_services.project_id : var.project_id
+  project = var.project_id
   member  = "serviceAccount:${var.project_number}-compute@developer.gserviceaccount.com"
 
   for_each = toset([
@@ -605,15 +330,15 @@ resource "google_project_iam_member" "cloud_build_job_service_account" {
 }
 
 data "google_project" "project" {
-  project_id = null_resource.check_cloudbuild_api != "" ? module.project_services.project_id : var.project_id
+  project_id = var.project_id
 }
 
 # This module creates a Cloud Storage bucket to be used by the Cloud Build Log Bucket
 module "build_logs_bucket" {
   source     = "terraform-google-modules/cloud-storage/google//modules/simple_bucket"
   version    = "9.0.1"
-  project_id = null_resource.check_cloudbuild_api != "" ? module.project_services.project_id : var.project_id
-  name       = "${local.app_prefix}-logs-${module.project_services.project_id}"
+  project_id = var.project_id
+  name       = "${local.app_prefix}-logs-${var.project_id}"
   location   = var.location
   # When deleting a bucket, this boolean option will delete all contained objects. 
   # If false, Terraform will fail to delete buckets which contain objects.
@@ -809,15 +534,15 @@ module "activation_pipeline_container" {
 
   create_cmd_body  = <<-EOT
     builds submit \
-      --project=${module.project_services.project_id} \
+      --project=${var.project_id} \
       --region ${var.location} \
       --default-buckets-behavior=regional-user-owned-bucket \
       --tag ${local.docker_repo_prefix}/${google_artifact_registry_repository.activation_repository.name}/${local.activation_container_name}:latest \
       --gcs-log-dir=gs://${module.build_logs_bucket.name} \
-      --service-account "projects/${module.project_services.project_id}/serviceAccounts/${var.cloud_build_service_account_email}" \
+      --service-account "projects/${var.project_id}/serviceAccounts/${var.cloud_build_service_account_email}" \
       ${local.pipeline_source_dir}
   EOT
-  destroy_cmd_body = "artifacts docker images delete --project=${module.project_services.project_id} ${local.docker_repo_prefix}/${google_artifact_registry_repository.activation_repository.name}/${local.activation_container_name} --delete-tags"
+  destroy_cmd_body = "artifacts docker images delete --project=${var.project_id} ${local.docker_repo_prefix}/${google_artifact_registry_repository.activation_repository.name}/${local.activation_container_name} --delete-tags"
 
   create_cmd_triggers = {
     source_contents_hash = local.activation_application_content_hash
@@ -834,8 +559,8 @@ module "activation_pipeline_template" {
   version = "3.5.0"
 
   platform         = "linux"
-  create_cmd_body  = "dataflow flex-template build --project=${module.project_services.project_id} \"gs://${module.pipeline_bucket.name}/dataflow/templates/${local.activation_container_image_id}.json\" --image \"${local.docker_repo_prefix}/${google_artifact_registry_repository.activation_repository.name}/${local.activation_container_name}:latest\" --sdk-language \"PYTHON\" --metadata-file \"${local.pipeline_source_dir}/metadata.json\""
-  destroy_cmd_body = "storage rm --project=${module.project_services.project_id} \"gs://${module.pipeline_bucket.name}/dataflow/templates/${local.activation_container_image_id}.json\""
+  create_cmd_body  = "dataflow flex-template build --project=${var.project_id} \"gs://${module.pipeline_bucket.name}/dataflow/templates/${local.activation_container_image_id}.json\" --image \"${local.docker_repo_prefix}/${google_artifact_registry_repository.activation_repository.name}/${local.activation_container_name}:latest\" --sdk-language \"PYTHON\" --metadata-file \"${local.pipeline_source_dir}/metadata.json\""
+  destroy_cmd_body = "storage rm --project=${var.project_id} \"gs://${module.pipeline_bucket.name}/dataflow/templates/${local.activation_container_image_id}.json\""
 
   create_cmd_triggers = {
     source_contents_hash = local.activation_application_content_hash
@@ -849,7 +574,7 @@ module "activation_pipeline_template" {
 # This resource creates a Pub Sub topic to be used by the Activation Application
 resource "google_pubsub_topic" "activation_trigger" {
   name    = "activation-trigger"
-  project = null_resource.check_pubsub_api.id != "" ? module.project_services.project_id : var.project_id
+  project = var.project_id
 }
 
 # This data resource generates a ZIP archive file containing the contents of the specified source_dir directory
@@ -863,8 +588,8 @@ data "archive_file" "activation_trigger_source" {
 module "function_bucket" {
   source     = "terraform-google-modules/cloud-storage/google//modules/simple_bucket"
   version    = "9.0.1"
-  project_id = null_resource.check_cloudfunctions_api.id != "" ? module.project_services.project_id : var.project_id
-  name       = "${local.app_prefix}-trigger-${module.project_services.project_id}"
+  project_id = var.project_id
+  name       = "${local.app_prefix}-trigger-${var.project_id}"
   location   = var.location
   # When deleting a bucket, this boolean option will delete all contained objects. 
   # If false, Terraform will fail to delete buckets which contain objects.
@@ -877,7 +602,7 @@ module "function_bucket" {
     condition = {
       age            = 365
       with_state     = "ANY"
-      matches_prefix = module.project_services.project_id
+      matches_prefix = var.project_id
     }
   }]
 
@@ -901,7 +626,7 @@ resource "google_storage_bucket_object" "activation_trigger_archive" {
 # This resource creates a Cloud Function version 2, with a python 3.11 runtime using the activation_trigger_archive zip file in the bucket as source code.
 resource "google_cloudfunctions2_function" "activation_trigger_cf" {
   name     = "activation-trigger"
-  project  = null_resource.check_cloudfunctions_api.id != "" ? module.project_services.project_id : var.project_id
+  project  = var.project_id
   location = var.trigger_function_location
 
   # Build config to prepare the code to run on Cloud Functions 2
@@ -914,7 +639,7 @@ resource "google_cloudfunctions2_function" "activation_trigger_cf" {
       }
     }
     entry_point       = "subscribe"
-    docker_repository = "projects/${module.project_services.project_id}/locations/${var.trigger_function_location}/repositories/gcf-artifacts"
+    docker_repository = "projects/${var.project_id}/locations/${var.trigger_function_location}/repositories/gcf-artifacts"
   }
 
   # Sets the trigger for the Cloud Function using the Pub Sub topic created above
@@ -933,7 +658,7 @@ resource "google_cloudfunctions2_function" "activation_trigger_cf" {
     ingress_settings      = "ALLOW_INTERNAL_ONLY"
     service_account_email = module.trigger_function_account.email
     environment_variables = {
-      ACTIVATION_PROJECT            = module.project_services.project_id
+      ACTIVATION_PROJECT            = var.project_id
       ACTIVATION_REGION             = var.location
       ACTIVATION_TYPE_CONFIGURATION = "gs://${module.pipeline_bucket.name}/${google_storage_bucket_object.activation_type_configuration_file.output_name}"
       TEMPLATE_FILE_GCS_LOCATION    = "gs://${module.pipeline_bucket.name}/dataflow/templates/${local.activation_container_image_id}.json"
@@ -943,13 +668,13 @@ resource "google_cloudfunctions2_function" "activation_trigger_cf" {
     }
     # Sets the environment variables from the secrets stored on Secret Manager
     secret_environment_variables {
-      project_id = null_resource.check_cloudfunctions_api.id != "" ? module.project_services.project_id : var.project_id
+      project_id = var.project_id
       key        = "GA4_MEASUREMENT_ID"
       secret     = split("/", module.secret_manager.secret_names[0])[3]
       version    = split("/", module.secret_manager.secret_versions[0])[5]
     }
     secret_environment_variables {
-      project_id = null_resource.check_cloudfunctions_api.id != "" ? module.project_services.project_id : var.project_id
+      project_id = var.project_id
       key        = "GA4_MEASUREMENT_SECRET"
       secret     = split("/", module.secret_manager.secret_names[1])[3]
       version    = split("/", module.secret_manager.secret_versions[1])[5]

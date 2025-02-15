@@ -28,7 +28,7 @@ resource "google_storage_bucket_object" "vbb_activation_configuration_file" {
 data "template_file" "load_vbb_activation_configuration_proc" {
   template = file("${local.template_dir}/load_${local.config_id}.sql.tpl")
   vars = {
-    project_id      = module.project_services.project_id
+    project_id      = var.project_id
     dataset         = module.bigquery.bigquery_dataset.dataset_id
     config_file_uri = "gs://${module.pipeline_bucket.name}/${google_storage_bucket_object.vbb_activation_configuration_file.output_name}"
   }
@@ -36,7 +36,7 @@ data "template_file" "load_vbb_activation_configuration_proc" {
 
 # Store procedure that loads the json configuation file from GCS into a configuration table in BQ
 resource "google_bigquery_routine" "load_vbb_activation_configuration_proc" {
-  project         = module.project_services.project_id
+  project         = var.project_id
   dataset_id      = module.bigquery.bigquery_dataset.dataset_id
   routine_id      = "load_${local.config_id}"
   routine_type    = "PROCEDURE"
@@ -47,7 +47,7 @@ resource "google_bigquery_routine" "load_vbb_activation_configuration_proc" {
 
 # This resource creates a BigQuery table named vbb_activation_configuration
 resource "google_bigquery_table" "smart_bidding_configuration" {
-  project     = module.project_services.project_id
+  project     = var.project_id
   dataset_id  = module.bigquery.bigquery_dataset.dataset_id
   table_id    = local.config_id
   description = "stores configuration settings used to translate predicted deciles into monetary values for Smart Bidding strategies."
