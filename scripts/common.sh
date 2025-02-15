@@ -287,42 +287,6 @@ set_application_default_credentials() {
   unset _SOURCE_ROOT
 }
 
-# shell script function to check if api is enabled
-check_apis_enabled(){
-    local __api_endpoint=$1
-    COUNTER=0
-    MAX_TRIES=100
-    while ! gcloud services list --project=$PROJECT_ID | grep -i $__api_endpoint && [ $COUNTER -lt $MAX_TRIES ]
-    do
-        sleep 6
-        printf "."
-        COUNTER=$((COUNTER + 1))
-    done
-    if [ $COUNTER -eq $MAX_TRIES ]; then
-        echo "${__api_endpoint} api is not enabled, installation can not continue!"
-        exit 1
-    else
-        echo "${__api_endpoint} api is enabled"
-    fi
-    unset __api_endpoint
-}
-
-# shell script function to enable api
-enable_apis(){
-    local __api_endpoint=$1
-    gcloud services enable $__api_endpoint
-    check_apis_enabled $__api_endpoint
-    unset __api_endpoint
-}
-
-# enable all apis in the array
-enable_all_apis() {
-  readarray -t apis_array <scripts/project_apis.txt
-  for i in "${apis_array[@]}"; do
-    enable_apis "$i"
-  done
-}
-
 set_adc() {
   # check if the script is manually triggered by a user, or automated in CI build by a service account. Different methods of ADC for each
   if echo "$ACTIVE_PRINCIPAL" | grep "iam.gserviceaccount.com"; then

@@ -57,6 +57,7 @@ Also, this method allows you to extend this solution and develop it to satisfy y
     ```
 
 1. Automatic setup and configure GA4 dependencies (optional)
+
     Set the following environment variables pointing to your Google Analytics 4 environment:
     ```sh
     export GA4_PROPERTY_ID="[Google Analytics 4 property id]"
@@ -70,6 +71,7 @@ Also, this method allows you to extend this solution and develop it to satisfy y
     When prompted to authenticate, use an account that has admin access to your Google Analytics 4 (GA4) property when prompted to authenticate in the script. The scripts uses the credential to access and setup the custom events and dimensions in your GA4 property.
 
 1. Manual setup and configure GA4 dependencies (optional)
+
     You can choose to skip automatic GA4 set up step but need create the following required resources in GA4 manually:
     - The events listed in the [activation type configuration](../../templates/activation_type_configuration_template.tpl) are created in your GA4 property. The event name field in GA4 need to match the `activation_event_name` field in the configuration file.
     - Custom user dimensions:

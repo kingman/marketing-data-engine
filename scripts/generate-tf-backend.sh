@@ -43,7 +43,7 @@ section_open  "Setting the Google Cloud project to TF_STATE_PROJECT"
 section_close
 
 section_open "Enable all the required APIs"
-    enable_all_apis
+    uv run service-apis-setup
 section_close
 
 if [ -z "${MAJ_USE_DEPLOYER_SA:-}" ]; then
