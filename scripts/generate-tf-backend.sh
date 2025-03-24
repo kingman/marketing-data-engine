@@ -46,9 +46,10 @@ section_open "Enable all the required APIs"
     uv run service-apis-setup
 section_close
 
+CS_IMPERSONATION_PARAM=""
+
 if [ -z "${MAJ_USE_DEPLOYER_SA:-}" ]; then
     echo "Use ${CURRENT_USER} for deployment"
-    CS_IMPERSONATION_PARAM=""
 else
     if [[ "${MAJ_USE_DEPLOYER_SA}" == "true" ]]; then
     section_open "Create deployer service account and enable $CURRENT_USER to use service account impersonation "
@@ -57,10 +58,15 @@ else
     section_open "Enable all the required IAM roles for deployer service account, serviceAccount:""${SERVICE_ACCOUNT_ID}"""
         enable_deployer_roles "${SERVICE_ACCOUNT_ID}"
     section_close
+    section_open "Check the required roles are granted for deployment accounts"
+        export SERVICE_ACCOUNT_ID=`uv run deployer-roles-check`
+    section_close
     section_open "Set Application Default Credentials to be used by Terraform"
         set_adc
     section_close
-    CS_IMPERSONATION_PARAM="-i ${SERVICE_ACCOUNT_ID}"
+    if echo "$ACTIVE_PRINCIPAL" | grep "iam.gserviceaccount.com"; then
+        CS_IMPERSONATION_PARAM="-i ${SERVICE_ACCOUNT_ID}"
+    fi
     fi
 fi
 
